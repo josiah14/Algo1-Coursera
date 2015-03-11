@@ -1,0 +1,3 @@
+Sorting - Selection, Insertion, Bubble, Quick (Implement all of these in all 8 test languages)
+
+Split the array, small elemnts on the left, big on the right, and then merge the results.  Recursively repeat until have lists of only 2 or less elements.

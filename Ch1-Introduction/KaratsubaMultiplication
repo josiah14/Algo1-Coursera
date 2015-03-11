@@ -1,0 +1,14 @@
+x = 5678
+y = 1234
+
+Step1: Multiply first half of x with the first half of y: 56 * 12 = 672
+Step2: Multiply the second half of x with the second half of y: 78 * 34 = 2652
+Step3: Sum of the first of x with the second of x, Sum of first of y with second of x, and multiply results together. (56 + 34) * (78 + 12) = 6164
+Step4: Step3:6164 - Step2:2652 - Step1:672 = 2840
+Step5: Step1:6720000 + Step2:2652 + Step4:284000 = 7006652
+
+General Formula: Given numbers with n digits and split into halves by the expression ab * cd...
+answer = 10**n * a * c + 10**(0.5 * n) * (a * d + b * c) + b * d
+For each miltiplication above between number halves, execute algorithm recursively.
+IMPROVEMENT: instead of in the middle term recursively computing (ad + bc), compute (a + b)(c + d) instead (= ac + ad + bc + bd)
+  Now only 3 instead of 4 recursive calls
