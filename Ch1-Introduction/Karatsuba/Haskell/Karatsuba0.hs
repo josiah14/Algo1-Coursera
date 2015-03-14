@@ -19,9 +19,6 @@ karatsuba x y =  z2 * (10 ^ (2 * m)) + (z1 - z2 - z0) * (10 ^ m) + z0
 numDigits :: Integer -> Int
 numDigits x = head $ dropWhile (\i -> x `div` 10^i > 0) [0..]
 
-maxDigits :: Integer -> Integer -> Int
-maxDigits x y = max (numDigits x) $ numDigits y
-
 split :: Int -> Integer -> (Integer, Integer)
 split i num = quotRem num (10^i)
 
