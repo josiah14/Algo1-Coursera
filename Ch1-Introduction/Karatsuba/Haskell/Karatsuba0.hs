@@ -5,7 +5,7 @@ karatsuba :: Integer -> Integer -> Integer
 karatsuba x y =  z2 * (10 ^ (2 * m)) + (z1 - z2 - z0) * (10 ^ m) + z0
   where m = n `div` 2
         n = max (numDigits x) $ numDigits y
-        (z2, z1, z0) = if maxDigits x y > (bitSize (1 :: Int)) 
+        (z2, z1, z0) = if abs (max x y) > (2^(bitSize (1 :: Int) - 1) - 1) 
                        then ( karatsuba x1 y1
                             , karatsuba (x0 + x1) (y0 + y1)
                             , karatsuba x0 y0
