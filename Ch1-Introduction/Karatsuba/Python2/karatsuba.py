@@ -13,4 +13,34 @@ def split(n, m):
     low_digits = n - high_digits*pow_ten
     return high_digits, low_digits
 
+class SplitTree(n, m):
+    def __init__(self, number, digit_count):
+        self._number = number
+        self._digit_count = digit_count
+        self._base_leaf_locations = []
+
+    def build(self):
+        for index in range(0, self.base_nodes_count()):
+            self._base_leaf_locations.append([int(char) for char in bin(index)[:1:-1]])
+            while len(self._base_leaf_locations) < self.height(): self._base_leaf_locations[index].append(0)
+        # the rest of the leaves can be found by continuing to iterate through the range(index, self.base_nodes_count())
+        # with self.height() - 1 list sizes
+
+
+    def base_level_vacancy(self):
+        if self._base_level_vacancy >= 0:
+            self._base_level_vacancy = self.last_full_level_size() - self.base_nodes_count()
+        return self._base_level_vacancy
+
+    def base_nodes_count(self):
+        if self._base_nodes_count == None: self._base_nodes_count = self._digit_count - self.last_full_level_size()
+        return self._base_nodes_count
+
+    def last_full_level_size(self):
+        self._last_full_level_size = self._last_full_level_size or 2**(self.height())
+        return self._last_full_level_size
+
+    def height(self):
+        self._height = self._height or math.floor(math.log(self._digit_count, 2))
+        return self._height
 
