@@ -13,6 +13,7 @@ def split(n, m):
     low_digits = n - high_digits*pow_ten
     return high_digits, low_digits
 
+# This calculation is Monoidic and can easily be threaded with a little thought
 class SplitTree(n, m):
     def __init__(self, number, digit_count):
         self._number = number
@@ -35,6 +36,6 @@ class SplitTree(n, m):
         return self._last_full_level_size
 
     def height(self):
-        self._height = self._height or math.floor(math.log(self._digit_count, 2))
+        self._height = self._height or math.ceil(math.log(self._digit_count, 2)) - 1
         return self._height
 
