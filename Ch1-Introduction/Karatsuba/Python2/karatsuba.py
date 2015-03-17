@@ -18,13 +18,13 @@ def split(number, index):
 class BinaryRecursionTree:
     def __init__(self, datum, counter, mapper, reducer):
         self._datum = datum
-        self._datum_size = counter(datum)
+        self._datum_size = counter(max(datum))
         self._base_nodes = []
         self._base_nodes_count = None
         self._last_full_level_size = None
         self._height = None
-        self._m = self._datum_size / 2
-        self._tree = mapper(self._datum, self._m)
+        self._tree = mapper(self._datum, self._datum_size / 2)
+        self._tree.append(self._datum_size / 2)
         self._mapper = mapper
         self._reducer = reducer
         self._counter = counter
@@ -32,6 +32,12 @@ class BinaryRecursionTree:
     class ref:
         def __init__(self, obj): self.obj = obj
         def get(self):           return self.obj
+
+    def _get_tree_node(self, path):
+        tree = self._tree
+        for i in path:
+            tree = tree[i]
+        return tree
 
     def _build_tree(self):
         nodes = [self.ref(self._tree)]
@@ -41,16 +47,21 @@ class BinaryRecursionTree:
                 for leaf in range(0,2):
                     num = nodes[j].get()[leaf]
                     nodes[j].get()[leaf] = self._mapper(num, self._counter(num) / 2)
+                    half_num_digits = self._counter(max(nodes[j].get()[leaf])) / 2
+                    nodes[j].get()[leaf].append(half_num_digits)
                     nodes0.append(self.ref(nodes[j].get()[leaf]))
             nodes = nodes0
             nodes0 = []
+        for base_node in self._base_nodes:
+            node = self._get_tree_node(base_node[:-1])
+            node[base_node[-1]] = self._mapper(node[base_node[-1]], 1)
+            node[base_node[-1]].append(0)
 
     def build(self):
         for index in range(0, self.base_nodes_count()):
             self._base_nodes.append([int(char) for char in bin(index)[:1:-1]])
             while len(self._base_nodes[index]) < self.height(): self._base_nodes[index].append(0)
-        # the rest of the leaves can be found by continuing to iterate through the range(index, self.base_nodes_count())
-        # with self.height() - 1 list sizes
+        self._build_tree()
 
     def base_nodes_count(self):
         if self._base_nodes_count == None: self._base_nodes_count = self._datum_size - self.last_full_level_size()
