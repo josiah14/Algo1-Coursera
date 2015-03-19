@@ -5,9 +5,9 @@ def karatsuba(x, y):
     # Python doesn't implement TCO, so use a loop instead
     return
 
-def formula(x0, x1, y0, y1, m):
+def formula(x0, xs, x1, y0, ys, y1, m):
     z0 = x0 * y0
-    z1 = (x0 + x1) * (y0 + y1)
+    z1 = xs * ys
     z2 = x1 * y1
     return z2 * (10**(2*m)) + (z1 - z2 - z0) * (10**m) + z0
 
@@ -74,9 +74,9 @@ class BinaryRecursionTree:
                 self._nodes[j].get().insert(0, self._mapper(split_index, x1, y1))
                 self._nodes[j].get().insert(0, self._mapper(split_index, xs, ys))
                 self._nodes[j].get().insert(0, self._mapper(split_index, x0, y0))
-                self._nodes[j].get()[0].append(split_index)
-                self._nodes[j].get()[1].append(split_index)
-                self._nodes[j].get()[2].append(split_index)
+                self._nodes[j].get()[0].append(split_index + 1)
+                self._nodes[j].get()[1].append(split_index + 1)
+                self._nodes[j].get()[2].append(split_index + 1)
                 nodes0.append(ref(self._nodes[j].get()[0]))
                 nodes0.append(ref(self._nodes[j].get()[1]))
                 nodes0.append(ref(self._nodes[j].get()[2]))
@@ -98,9 +98,9 @@ class BinaryRecursionTree:
             node.insert(0, self._mapper(split_index, x1, y1))
             node.insert(0, self._mapper(split_index, xs, ys))
             node.insert(0, self._mapper(split_index, x0, y0))
-            node[0].append(0)
-            node[1].append(0)
-            node[2].append(0)
+            node[0].append(1)
+            node[1].append(1)
+            node[2].append(1)
             nodes0.append(ref(node[0]))
             nodes0.append(ref(node[1]))
             nodes0.append(ref(node[2]))
@@ -113,6 +113,11 @@ class BinaryRecursionTree:
             self._base_nodes.append([int(char) for char in self._trin(index)[::-1]])
             while len(self._base_nodes[index]) < self.height() - 1: self._base_nodes[index].append(0) # this probably isn't correct anymore
         self._build_tree()
+
+    def aggregate(self):
+        for i in range(0,self.base_nodes_count()):
+            for j in range(0,3):
+                self._get_tree_node(self._base_nodes[i])[j] = self._reducer(*self._nodes[i*3 + j].get())
 
     def base_nodes_count(self):
         if self._base_nodes_count == None: self._base_nodes_count = self._datum_size - self.last_full_level_size()
