@@ -5,6 +5,12 @@ def karatsuba(x, y):
     # Python doesn't implement TCO, so use a loop instead
     return
 
+def formula(x0, x1, y0, y1, m):
+    z0 = x0 * y0
+    z1 = (x0 + x1) * (y0 + y1)
+    z2 = x1 * y1
+    return z2 * (10**(2*m)) + (z1 - z2 - z0) * (10**m) + z0
+
 def num_digits(n):
     return dropwhile(lambda exp: n / 10**exp > 0, count()).next()
 
@@ -13,6 +19,9 @@ def split(number, index):
     high_digits = number / pow_ten
     low_digits = number - high_digits*pow_ten
     return [high_digits, low_digits]
+
+def split_multiple(index, *numbers):
+    return reduce(lambda x, y: x + y, [split(num, index) for num in numbers])
 
 # This calculation is Monoidic and can easily be threaded with a little thought
 class BinaryRecursionTree:
@@ -23,7 +32,7 @@ class BinaryRecursionTree:
         self._base_nodes_count = None
         self._last_full_level_size = None
         self._height = None
-        self._tree = mapper(self._datum[0], self._datum_size / 2) + mapper(self._datum[1], self._datum_size / 2)
+        self._tree = mapper(self._datum_size / 2, *self._datum)
         self._tree.append(self._datum_size / 2)
         self._mapper = mapper
         self._reducer = reducer
@@ -51,8 +60,8 @@ class BinaryRecursionTree:
                 x1 = self._nodes[j].get().pop(0)
                 y0 = self._nodes[j].get().pop(0)
                 y1 = self._nodes[j].get().pop(0)
-                self._nodes[j].get().insert(0, self._mapper(x1, split_index) + self._mapper(y1, split_index))
-                self._nodes[j].get().insert(0, self._mapper(x0, split_index) + self._mapper(y0, split_index))
+                self._nodes[j].get().insert(0, self._mapper(split_index, x1, y1))
+                self._nodes[j].get().insert(0, self._mapper(split_index, x0, y0))
                 self._nodes[j].get()[0].append(split_index)
                 self._nodes[j].get()[1].append(split_index)
                 nodes0.append(ref(self._nodes[j].get()[0]))
@@ -69,9 +78,10 @@ class BinaryRecursionTree:
             x1 = node.pop(0)
             y0 = node.pop(0)
             y1 = node.pop(0)
-            node.insert(0, self._mapper(x1, split_index) + self._mapper(y1, split_index))
-            node.insert(0, self._mapper(x0, split_index) + self._mapper(y0, split_index))
-            node.append(0)
+            node.insert(0, self._mapper(split_index, x1, y1))
+            node.insert(0, self._mapper(split_index, x0, y0))
+            node[0].append(0)
+            node[1].append(0)
             nodes0.append(ref(node[0]))
             nodes0.append(ref(node[1]))
         self._nodes = nodes0
