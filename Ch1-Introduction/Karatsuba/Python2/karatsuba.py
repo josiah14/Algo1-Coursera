@@ -1,12 +1,12 @@
-import itertools
-import math
+from itertools import *
+from math import *
 
 def karatsuba(x, y):
     # Python doesn't implement TCO, so use a loop instead
     return
 
 def num_digits(n):
-    return itertools.dropwhile(lambda exp: n / 10**exp > 0, itertools.count()).next()
+    return dropwhile(lambda exp: n / 10**exp > 0, count()).next()
 
 def split(number, index):
     pow_ten = 10**index
@@ -23,15 +23,18 @@ class BinaryRecursionTree:
         self._base_nodes_count = None
         self._last_full_level_size = None
         self._height = None
-        self._tree = mapper(self._datum, self._datum_size / 2)
+        self._tree = mapper(self._datum[0], self._datum_size / 2) + mapper(self._datum[1], self._datum_size / 2)
         self._tree.append(self._datum_size / 2)
         self._mapper = mapper
         self._reducer = reducer
         self._counter = counter
+        self._nodes = [self.ref(self._tree)]
 
     class ref:
         def __init__(self, obj): self.obj = obj
         def get(self):           return self.obj
+
+    def _flatten2(self, two_d_iterable): return [item for subiter in two_d_iterable for item in subiter]
 
     def _get_tree_node(self, path):
         tree = self._tree
@@ -40,22 +43,39 @@ class BinaryRecursionTree:
         return tree
 
     def _build_tree(self):
-        nodes = [self.ref(self._tree)]
         nodes0 = []
         for i in range(0, self.height() - 1):
+            split_index = self._counter( max(self._flatten2(imap(lambda node: node.get(), self._nodes))) ) / 2
             for j in range(0, 2**i):
-                for leaf in range(0,2):
-                    num = nodes[j].get()[leaf]
-                    nodes[j].get()[leaf] = self._mapper(num, self._counter(num) / 2)
-                    half_num_digits = self._counter(max(nodes[j].get()[leaf])) / 2
-                    nodes[j].get()[leaf].append(half_num_digits)
-                    nodes0.append(self.ref(nodes[j].get()[leaf]))
-            nodes = nodes0
+                x0 = self._nodes[j].get().pop(0)
+                x1 = self._nodes[j].get().pop(0)
+                y0 = self._nodes[j].get().pop(0)
+                y1 = self._nodes[j].get().pop(0)
+                self._nodes[j].get().insert(0, self._mapper(x1, split_index) + self._mapper(y1, split_index))
+                self._nodes[j].get().insert(0, self._mapper(x0, split_index) + self._mapper(y0, split_index))
+                self._nodes[j].get()[0].append(split_index)
+                self._nodes[j].get()[1].append(split_index)
+                nodes0.append(ref(self._nodes[j].get()[0]))
+                nodes0.append(ref(self._nodes[j].get()[1]))
+            self._nodes = nodes0
             nodes0 = []
-        for base_node in self._base_nodes:
+        base_nodes = self._base_nodes
+        if 2**self.height() / 2 < len(self._base_nodes):
+            base_nodes = base_nodes[:(2**self.height() / 2)]
+        for base_node in base_nodes:
             node = self._get_tree_node(base_node[:-1])
-            node[base_node[-1]] = self._mapper(node[base_node[-1]], 1)
-            node[base_node[-1]].append(0)
+            split_index = self._counter(max(node)) / 2
+            x0 = node.pop(0)
+            x1 = node.pop(0)
+            y0 = node.pop(0)
+            y1 = node.pop(0)
+            node.insert(0, self._mapper(x1, split_index) + self._mapper(y1, split_index))
+            node.insert(0, self._mapper(x0, split_index) + self._mapper(y0, split_index))
+            node.append(0)
+            nodes0.append(ref(node[0]))
+            nodes0.append(ref(node[1]))
+        self._nodes = nodes0
+        nodes0 = []
 
     def build(self):
         for index in range(0, self.base_nodes_count()):
@@ -72,6 +92,6 @@ class BinaryRecursionTree:
         return self._last_full_level_size
 
     def height(self):
-        self._height = self._height or int(math.ceil(math.log(self._datum_size, 2)) - 1)
+        self._height = self._height or int(ceil(log(self._datum_size, 2)) - 1)
         return self._height
 
