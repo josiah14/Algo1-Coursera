@@ -18,7 +18,8 @@ def split(number, index):
     pow_ten = 10**index
     high_digits = number / pow_ten
     low_digits = number - high_digits*pow_ten
-    return [high_digits, low_digits]
+    sum_digits = high_digits + low_digits
+    return [high_digits, sum_digits, low_digits]
 
 def split_multiple(index, *numbers):
     return reduce(lambda x, y: x + y, [split(num, index) for num in numbers])
@@ -54,42 +55,55 @@ class BinaryRecursionTree:
     def _build_tree(self):
         nodes0 = []
         for i in range(0, self.height() - 1):
+            print self._tree
             split_index = self._counter( max(self._flatten2(imap(lambda node: node.get(), self._nodes))) ) / 2
-            for j in range(0, 2**i):
+            for j in range(0, 3**i):
                 x0 = self._nodes[j].get().pop(0)
+                xs = self._nodes[j].get().pop(0)
                 x1 = self._nodes[j].get().pop(0)
                 y0 = self._nodes[j].get().pop(0)
+                ys = self._nodes[j].get().pop(0)
                 y1 = self._nodes[j].get().pop(0)
                 self._nodes[j].get().insert(0, self._mapper(split_index, x1, y1))
+                self._nodes[j].get().insert(0, self._mapper(split_index, xs, ys))
                 self._nodes[j].get().insert(0, self._mapper(split_index, x0, y0))
                 self._nodes[j].get()[0].append(split_index)
                 self._nodes[j].get()[1].append(split_index)
+                self._nodes[j].get()[2].append(split_index)
                 nodes0.append(ref(self._nodes[j].get()[0]))
                 nodes0.append(ref(self._nodes[j].get()[1]))
+                nodes0.append(ref(self._nodes[j].get()[2]))
             self._nodes = nodes0
             nodes0 = []
         base_nodes = self._base_nodes
-        if 2**self.height() / 2 < len(self._base_nodes):
-            base_nodes = base_nodes[:(2**self.height() / 2)]
+        if 3**self.height() / 2 < len(self._base_nodes):
+            base_nodes = base_nodes[:(3**self.height() / 2)]
         for base_node in base_nodes:
+            print self._tree
             node = self._get_tree_node(base_node[:-1])
             split_index = self._counter(max(node)) / 2
             x0 = node.pop(0)
+            xs = node.pop(0)
             x1 = node.pop(0)
             y0 = node.pop(0)
+            ys = node.pop(0)
             y1 = node.pop(0)
             node.insert(0, self._mapper(split_index, x1, y1))
+            node.insert(0, self._mapper(split_index, xs, ys))
             node.insert(0, self._mapper(split_index, x0, y0))
             node[0].append(0)
             node[1].append(0)
+            node[2].append(0)
             nodes0.append(ref(node[0]))
             nodes0.append(ref(node[1]))
+            nodes0.append(ref(node[2]))
         self._nodes = nodes0
         nodes0 = []
+        print self._tree
 
     def build(self):
         for index in range(0, self.base_nodes_count()):
-            self._base_nodes.append([int(char) for char in bin(index)[:1:-1]])
+            self._base_nodes.append([int(char) for char in bin(index)[:1:-1]]) # need some way to use base 3 here.
             while len(self._base_nodes[index]) < self.height(): self._base_nodes[index].append(0)
         self._build_tree()
 
@@ -98,7 +112,7 @@ class BinaryRecursionTree:
         return self._base_nodes_count
 
     def last_full_level_size(self):
-        self._last_full_level_size = self._last_full_level_size or int(2**(self.height()))
+        self._last_full_level_size = self._last_full_level_size or int(3**(self.height()))
         return self._last_full_level_size
 
     def height(self):
