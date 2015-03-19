@@ -87,7 +87,7 @@ class BinaryRecursionTree:
             base_nodes = base_nodes[:(3**self.height() / 2)]
         for base_node in base_nodes:
             print self._tree
-            node = self._get_tree_node(base_node[:-1])
+            node = self._get_tree_node(base_node)
             split_index = self._counter(max(node)) / 2
             x0 = node.pop(0)
             xs = node.pop(0)
@@ -111,15 +111,15 @@ class BinaryRecursionTree:
     def build(self):
         for index in range(0, self.base_nodes_count()):
             self._base_nodes.append([int(char) for char in self._trin(index)[::-1]])
-            while len(self._base_nodes[index]) < self.height(): self._base_nodes[index].append(0) # this probably isn't correct anymore
+            while len(self._base_nodes[index]) < self.height() - 1: self._base_nodes[index].append(0) # this probably isn't correct anymore
         self._build_tree()
 
     def base_nodes_count(self):
-        if self._base_nodes_count == None: self._base_nodes_count = self._datum_size - self.last_full_level_size() / 3
+        if self._base_nodes_count == None: self._base_nodes_count = self._datum_size - self.last_full_level_size()
         return self._base_nodes_count
 
     def last_full_level_size(self):
-        self._last_full_level_size = self._last_full_level_size or int(3**(self.height()))
+        self._last_full_level_size = self._last_full_level_size or int(3**(self.height() - 1))
         return self._last_full_level_size
 
     def height(self):
