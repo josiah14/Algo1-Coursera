@@ -46,6 +46,13 @@ class BinaryRecursionTree:
 
     def _flatten2(self, two_d_iterable): return [item for subiter in two_d_iterable for item in subiter]
 
+    def _trin(self, base_10_num):
+        base_3_num_str = ''
+        while base_10_num:
+            base_3_num_str = str(base_10_num%3) + base_3_num_str
+            base_10_num = base_10_num / 3
+        return base_3_num_str
+
     def _get_tree_node(self, path):
         tree = self._tree
         for i in path:
@@ -103,12 +110,12 @@ class BinaryRecursionTree:
 
     def build(self):
         for index in range(0, self.base_nodes_count()):
-            self._base_nodes.append([int(char) for char in bin(index)[:1:-1]]) # need some way to use base 3 here.
+            self._base_nodes.append([int(char) for char in self._trin(index)[::-1]]) # need some way to use base 3 here.
             while len(self._base_nodes[index]) < self.height(): self._base_nodes[index].append(0)
         self._build_tree()
 
     def base_nodes_count(self):
-        if self._base_nodes_count == None: self._base_nodes_count = self._datum_size - self.last_full_level_size()
+        if self._base_nodes_count == None: self._base_nodes_count = self._datum_size - self.last_full_level_size() / 3
         return self._base_nodes_count
 
     def last_full_level_size(self):
