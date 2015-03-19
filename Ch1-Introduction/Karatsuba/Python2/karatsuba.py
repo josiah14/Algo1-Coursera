@@ -110,8 +110,8 @@ class BinaryRecursionTree:
 
     def build(self):
         for index in range(0, self.base_nodes_count()):
-            self._base_nodes.append([int(char) for char in self._trin(index)[::-1]]) # need some way to use base 3 here.
-            while len(self._base_nodes[index]) < self.height(): self._base_nodes[index].append(0)
+            self._base_nodes.append([int(char) for char in self._trin(index)[::-1]])
+            while len(self._base_nodes[index]) < self.height(): self._base_nodes[index].append(0) # this probably isn't correct anymore
         self._build_tree()
 
     def base_nodes_count(self):
