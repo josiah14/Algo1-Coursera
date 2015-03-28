@@ -25,7 +25,7 @@ def split_multiple(index, *numbers):
     return reduce(lambda x, y: x + y, [split(num, index) for num in numbers])
 
 # This calculation is Monoidic and can easily be threaded with a little thought
-class BinaryRecursionTree:
+class TrinaryRecursionTree:
     def __init__(self, datum, counter, mapper, reducer, recursor):
         self._datum = datum
         self._datum_size = counter(max(datum))
