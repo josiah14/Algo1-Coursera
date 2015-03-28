@@ -5,11 +5,11 @@ def karatsuba(x, y):
     # Python doesn't implement TCO, so use a loop instead
     return
 
-def formula(x0, xs, x1, y0, ys, y1, m):
-    z0 = x0 * y0
-    z1 = xs * ys
-    z2 = x1 * y1
+def base_formula(z0, z1, z2, m):
     return z2 * (10**(2*m)) + (z1 - z2 - z0) * (10**m) + z0
+
+def split_formula(x1, xs, x0, y1, ys, y0, m):
+    return base_formula(x0 * y0, xs * ys, x1 * y1, m)
 
 def num_digits(n):
     return dropwhile(lambda exp: n / 10**exp > 0, count()).next()
@@ -26,7 +26,7 @@ def split_multiple(index, *numbers):
 
 # This calculation is Monoidic and can easily be threaded with a little thought
 class BinaryRecursionTree:
-    def __init__(self, datum, counter, mapper, reducer):
+    def __init__(self, datum, counter, mapper, reducer, recursor):
         self._datum = datum
         self._datum_size = counter(max(datum))
         self._base_nodes = []
@@ -37,6 +37,7 @@ class BinaryRecursionTree:
         self._tree.append(self._datum_size / 2)
         self._mapper = mapper
         self._reducer = reducer
+        self._recursor = recursor
         self._counter = counter
         self._nodes = [self.ref(self._tree)]
 
@@ -65,21 +66,21 @@ class BinaryRecursionTree:
             print self._tree
             split_index = self._counter( max(self._flatten2(imap(lambda node: node.get(), self._nodes))) ) / 2
             for j in range(0, 3**i):
-                x0 = self._nodes[j].get().pop(0)
-                xs = self._nodes[j].get().pop(0)
                 x1 = self._nodes[j].get().pop(0)
-                y0 = self._nodes[j].get().pop(0)
-                ys = self._nodes[j].get().pop(0)
+                xs = self._nodes[j].get().pop(0)
+                x0 = self._nodes[j].get().pop(0)
                 y1 = self._nodes[j].get().pop(0)
+                ys = self._nodes[j].get().pop(0)
+                y0 = self._nodes[j].get().pop(0)
                 self._nodes[j].get().insert(0, self._mapper(split_index, x1, y1))
-                self._nodes[j].get().insert(0, self._mapper(split_index, xs, ys))
-                self._nodes[j].get().insert(0, self._mapper(split_index, x0, y0))
+                self._nodes[j].get().insert(1, self._mapper(split_index, xs, ys))
+                self._nodes[j].get().insert(2, self._mapper(split_index, x0, y0))
                 self._nodes[j].get()[0].append(split_index + 1)
                 self._nodes[j].get()[1].append(split_index + 1)
                 self._nodes[j].get()[2].append(split_index + 1)
-                nodes0.append(ref(self._nodes[j].get()[0]))
-                nodes0.append(ref(self._nodes[j].get()[1]))
-                nodes0.append(ref(self._nodes[j].get()[2]))
+                nodes0.append(self.ref(self._nodes[j].get()[0]))
+                nodes0.append(self.ref(self._nodes[j].get()[1]))
+                nodes0.append(self.ref(self._nodes[j].get()[2]))
             self._nodes = nodes0
             nodes0 = []
         base_nodes = self._base_nodes
@@ -89,21 +90,21 @@ class BinaryRecursionTree:
             print self._tree
             node = self._get_tree_node(base_node)
             split_index = self._counter(max(node)) / 2
-            x0 = node.pop(0)
-            xs = node.pop(0)
             x1 = node.pop(0)
-            y0 = node.pop(0)
-            ys = node.pop(0)
+            xs = node.pop(0)
+            x0 = node.pop(0)
             y1 = node.pop(0)
+            ys = node.pop(0)
+            y0 = node.pop(0)
             node.insert(0, self._mapper(split_index, x1, y1))
-            node.insert(0, self._mapper(split_index, xs, ys))
-            node.insert(0, self._mapper(split_index, x0, y0))
+            node.insert(1, self._mapper(split_index, xs, ys))
+            node.insert(2, self._mapper(split_index, x0, y0))
             node[0].append(1)
             node[1].append(1)
             node[2].append(1)
-            nodes0.append(ref(node[0]))
-            nodes0.append(ref(node[1]))
-            nodes0.append(ref(node[2]))
+            nodes0.append(self.ref(node[0]))
+            nodes0.append(self.ref(node[1]))
+            nodes0.append(self.ref(node[2]))
         self._nodes = nodes0
         nodes0 = []
         print self._tree
@@ -111,13 +112,35 @@ class BinaryRecursionTree:
     def build(self):
         for index in range(0, self.base_nodes_count()):
             self._base_nodes.append([int(char) for char in self._trin(index)[::-1]])
-            while len(self._base_nodes[index]) < self.height() - 1: self._base_nodes[index].append(0) # this probably isn't correct anymore
+            while len(self._base_nodes[index]) < self.height() - 1: self._base_nodes[index].append(0)
         self._build_tree()
 
     def aggregate(self):
         for i in range(0,self.base_nodes_count()):
+            cur_base_node = self._base_nodes[i]
             for j in range(0,3):
-                self._get_tree_node(self._base_nodes[i])[j] = self._reducer(*self._nodes[i*3 + j].get())
+                self._get_tree_node(cur_base_node)[j] = self._reducer(*self._nodes[i*3 + j].get())
+            cur_node = self._get_tree_node(cur_base_node)
+            print cur_node
+            cur_node = self._recursor(*cur_node)
+        remaining_bottom_leaves = range(self.base_nodes_count(), 3**(self.height() - 1))
+        bottom_leaf_paths = [[int(char) for char in self._trin(leaf)[::-1]] for leaf in remaining_bottom_leaves]
+        for index in range(0, len(bottom_leaf_paths)):
+            while len(bottom_leaf_paths[index]) < self.height() - 1: bottom_leaf_paths[index].append(0)
+        print bottom_leaf_paths
+        for leaf_path in bottom_leaf_paths:
+            leaf = self._get_tree_node(leaf_path)
+            leaf = self._reducer(*leaf)
+        new_height = self.height() - 2
+        while new_height > 1:
+            bottom_leaf_paths = [[int(char) for char in self._trin(leaf)[::-1]] for leaf in range(0, 3**new_height)]
+            for index in range(0, len(bottom_leaf_paths)):
+                while len(bottom_leaf_paths[index]) < new_height: bottom_leaf_paths[index].append(0)
+            print bottom_leaf_paths
+            for leaf_path in bottom_leaf_paths:
+                leaf = self._get_tree_node(leaf_path)
+                leaf = self._reducer(*leaf)
+            new_height -= 1
 
     def base_nodes_count(self):
         if self._base_nodes_count == None: self._base_nodes_count = self._datum_size - self.last_full_level_size()
