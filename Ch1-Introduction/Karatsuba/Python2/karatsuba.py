@@ -120,27 +120,29 @@ class TrinaryRecursionTree:
             cur_base_node = self._base_nodes[i]
             for j in range(0,3):
                 self._get_tree_node(cur_base_node)[j] = self._reducer(*self._nodes[i*3 + j].get())
-            cur_node = self._get_tree_node(cur_base_node)
-            print cur_node
-            cur_node = self._recursor(*cur_node)
+            cur_node = self._get_tree_node(cur_base_node[:-1])
+            cur_node[cur_base_node[-1]] = self._recursor(*cur_node[cur_base_node[-1]])
         remaining_bottom_leaves = range(self.base_nodes_count(), 3**(self.height() - 1))
         bottom_leaf_paths = [[int(char) for char in self._trin(leaf)[::-1]] for leaf in remaining_bottom_leaves]
         for index in range(0, len(bottom_leaf_paths)):
             while len(bottom_leaf_paths[index]) < self.height() - 1: bottom_leaf_paths[index].append(0)
-        print bottom_leaf_paths
         for leaf_path in bottom_leaf_paths:
-            leaf = self._get_tree_node(leaf_path)
-            leaf = self._reducer(*leaf)
+            node = self._get_tree_node(leaf_path[:-1])
+            node[leaf_path[-1]] = self._reducer(*node[leaf_path[-1]])
         new_height = self.height() - 2
-        while new_height > 1:
+        while new_height > 0:
+            print new_height
             bottom_leaf_paths = [[int(char) for char in self._trin(leaf)[::-1]] for leaf in range(0, 3**new_height)]
             for index in range(0, len(bottom_leaf_paths)):
                 while len(bottom_leaf_paths[index]) < new_height: bottom_leaf_paths[index].append(0)
             print bottom_leaf_paths
             for leaf_path in bottom_leaf_paths:
-                leaf = self._get_tree_node(leaf_path)
-                leaf = self._reducer(*leaf)
+                node = self._get_tree_node(leaf_path[:-1])
+                print node
+                node[leaf_path[-1]] = self._recursor(*node[leaf_path[-1]])
+                print node
             new_height -= 1
+        x._tree = x._recursor(*x._tree)
 
     def base_nodes_count(self):
         if self._base_nodes_count == None: self._base_nodes_count = self._datum_size - self.last_full_level_size()
