@@ -2,8 +2,15 @@ from itertools import *
 from math import *
 
 def karatsuba(x, y):
-    # Python doesn't implement TCO, so use a loop instead
-    return
+    tree = TrinaryRecursionTree([x,y],
+                                num_digits,
+                                split_multiple,
+                                split_formula,
+                                base_formula
+                               )
+    tree.build()
+    tree.aggregate()
+    return tree._tree
 
 def base_formula(z0, z1, z2, m):
     return z2 * (10**(2*m)) + (z1 - z2 - z0) * (10**m) + z0
@@ -45,7 +52,9 @@ class TrinaryRecursionTree:
         def __init__(self, obj): self.obj = obj
         def get(self):           return self.obj
 
-    def _flatten2(self, two_d_iterable): return [item for subiter in two_d_iterable for item in subiter]
+    def _flatten2(self, two_d_iterable):
+        print two_d_iterable
+        return [item for subiter in two_d_iterable for item in subiter]
 
     def _trin(self, base_10_num):
         base_3_num_str = ''
@@ -63,8 +72,16 @@ class TrinaryRecursionTree:
     def _build_tree(self):
         nodes0 = []
         for i in range(0, self.height() - 1):
+            print "tree"
             print self._tree
-            split_index = self._counter( max(self._flatten2(imap(lambda node: node.get(), self._nodes))) ) / 2
+            max_val = max(self._flatten2(
+                imap(lambda node: [node.get()[0],node.get()[2],node.get()[3],node.get()[5]], self._nodes)
+            ))
+            print "max"
+            print max_val
+            split_index = self._counter( max_val ) / 2
+            print "index"
+            print split_index
             for j in range(0, 3**i):
                 x1 = self._nodes[j].get().pop(0)
                 xs = self._nodes[j].get().pop(0)
@@ -75,9 +92,9 @@ class TrinaryRecursionTree:
                 self._nodes[j].get().insert(0, self._mapper(split_index, x1, y1))
                 self._nodes[j].get().insert(1, self._mapper(split_index, xs, ys))
                 self._nodes[j].get().insert(2, self._mapper(split_index, x0, y0))
-                self._nodes[j].get()[0].append(split_index + 1)
-                self._nodes[j].get()[1].append(split_index + 1)
-                self._nodes[j].get()[2].append(split_index + 1)
+                self._nodes[j].get()[0].append(split_index)
+                self._nodes[j].get()[1].append(split_index)
+                self._nodes[j].get()[2].append(split_index)
                 nodes0.append(self.ref(self._nodes[j].get()[0]))
                 nodes0.append(self.ref(self._nodes[j].get()[1]))
                 nodes0.append(self.ref(self._nodes[j].get()[2]))
@@ -89,6 +106,7 @@ class TrinaryRecursionTree:
         for base_node in base_nodes:
             print self._tree
             node = self._get_tree_node(base_node)
+            print node
             split_index = self._counter(max(node)) / 2
             x1 = node.pop(0)
             xs = node.pop(0)
@@ -99,9 +117,9 @@ class TrinaryRecursionTree:
             node.insert(0, self._mapper(split_index, x1, y1))
             node.insert(1, self._mapper(split_index, xs, ys))
             node.insert(2, self._mapper(split_index, x0, y0))
-            node[0].append(1)
-            node[1].append(1)
-            node[2].append(1)
+            node[0].append(0)
+            node[1].append(0)
+            node[2].append(0)
             nodes0.append(self.ref(node[0]))
             nodes0.append(self.ref(node[1]))
             nodes0.append(self.ref(node[2]))
@@ -119,6 +137,8 @@ class TrinaryRecursionTree:
         for i in range(0,self.base_nodes_count()):
             cur_base_node = self._base_nodes[i]
             for j in range(0,3):
+                print j
+                print self._get_tree_node(cur_base_node)
                 self._get_tree_node(cur_base_node)[j] = self._reducer(*self._nodes[i*3 + j].get())
             cur_node = self._get_tree_node(cur_base_node[:-1])
             cur_node[cur_base_node[-1]] = self._recursor(*cur_node[cur_base_node[-1]])
@@ -149,7 +169,7 @@ class TrinaryRecursionTree:
         return self._base_nodes_count
 
     def last_full_level_size(self):
-        self._last_full_level_size = self._last_full_level_size or int(3**(self.height() - 1))
+        self._last_full_level_size = self._last_full_level_size or int(3**self.height())
         return self._last_full_level_size
 
     def height(self):
