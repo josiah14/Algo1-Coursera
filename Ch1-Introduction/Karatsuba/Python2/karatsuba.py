@@ -71,6 +71,7 @@ class TrinaryRecursionTree:
 
     def _build_tree(self):
         nodes0 = []
+        print "build_tree"
         for i in range(0, self.height() - 1):
             print "tree"
             print self._tree
@@ -130,7 +131,7 @@ class TrinaryRecursionTree:
     def build(self):
         for index in range(0, self.base_nodes_count()):
             self._base_nodes.append([int(char) for char in self._trin(index)[::-1]])
-            while len(self._base_nodes[index]) < self.height() - 1: self._base_nodes[index].append(0)
+            while len(self._base_nodes[index]) < self.height(): self._base_nodes[index].append(0)
         self._build_tree()
 
     def aggregate(self):
@@ -165,14 +166,14 @@ class TrinaryRecursionTree:
         x._tree = x._recursor(*x._tree)
 
     def base_nodes_count(self):
-        if self._base_nodes_count == None: self._base_nodes_count = self._datum_size - self.last_full_level_size()
+        if self._base_nodes_count == None: self._base_nodes_count = self._datum_size - 3**self.last_full_level_size()
         return self._base_nodes_count
 
     def last_full_level_size(self):
-        self._last_full_level_size = self._last_full_level_size or int(3**self.height())
+        self._last_full_level_size = self._last_full_level_size or int(3**(self.height() - 1))
         return self._last_full_level_size
 
     def height(self):
-        self._height = self._height or int(ceil(log(self._datum_size, 2)) - 1)
+        self._height = self._height or int(ceil(log(self._datum_size, 2)))
         return self._height
 
