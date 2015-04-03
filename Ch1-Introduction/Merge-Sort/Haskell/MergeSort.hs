@@ -1,5 +1,4 @@
 module MergeSort (mergesort) where
-
 import Data.List (insert)
 
 mergesort :: [Int] -> [Int]
