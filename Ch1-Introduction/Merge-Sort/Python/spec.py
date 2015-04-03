@@ -1,3 +1,5 @@
+# you must have mamba installed to run the test suite.
+# execute the file with the mamba command.  E.g. mamba spec.py
 from expects import *
 import random
 
