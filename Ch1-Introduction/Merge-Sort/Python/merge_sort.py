@@ -23,8 +23,7 @@ def _conquer(left_xs, right_xs):
         else:
             sorted_xs.append(right0)
             right = tail(right)
-    sorted_xs += right + left
-    return sorted_xs
+    return sorted_xs + right + left
 
 # helper methods that could probably be pulled into a library
 def split_at(xs, index):
