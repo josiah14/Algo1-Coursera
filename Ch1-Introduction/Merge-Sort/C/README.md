@@ -1,5 +1,10 @@
-# Dependencies
+# Make Command
+`make -f makefile`
 
+# Run Command
+'./mergesort'
+
+# Dependencies
 Besides what is in the Gemfile, after running `bundle install`, also install:
 
 1. GCC 4.8.2:   *This C implementation is tested on this compiler, and not others.  I will not guarantee the correctness of this code on other compilers.*
