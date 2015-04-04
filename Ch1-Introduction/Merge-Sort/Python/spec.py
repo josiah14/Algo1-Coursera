@@ -3,7 +3,7 @@
 from expects import *
 import random
 
-execfile('merge_sort.py')
+execfile('merge_sort_naiive.py')
 
 with description('mergesort'):
     with context('when an empty list is provided'):
