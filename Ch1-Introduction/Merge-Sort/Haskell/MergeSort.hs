@@ -1,5 +1,4 @@
 module MergeSort (mergesort) where
-import Data.List (insert)
 
 mergesort :: [Int] -> [Int]
 mergesort list =
@@ -15,10 +14,11 @@ divide :: Ord a => [a] -> ([a], [a])
 divide xs = splitAt (length xs `div` 2) xs
 
 conquer :: Ord a => [a] -> [a] -> [a]
-conquer x y = conquer' x y []
-  where conquer' a@(a0:aTail) b@(b0:bTail) acc
-          | null aTail = acc ++ (insert a0 b)
-          | null bTail = acc ++ (insert b0 a)
-          | a0 < b0    = conquer' aTail b (acc ++ [a0])
-          | otherwise  = conquer' a bTail (acc ++ [b0])
+conquer xs ys =
+  case (xs, ys) of
+    ([], _) -> ys
+    (_, []) -> xs
+    (x0:xTail, y0:yTail)
+      | x0 < y0   -> x0:conquer xTail ys
+      | otherwise -> y0:conquer xs yTail
 
