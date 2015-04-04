@@ -3,7 +3,7 @@
 from expects import *
 import random
 
-execfile('merge_sort_naiive.py')
+execfile('merge_sort_no_recursion.py')
 
 with description('mergesort'):
     with context('when an empty list is provided'):
@@ -16,6 +16,10 @@ with description('mergesort'):
     with context('when a two element list is provided'):
         with it('returns the same two element list sorted in ascending order'):
             xs = [3,1]
+            expect(mergesort(xs)).to(equal(sorted(xs)))
+    with context('when an odd-sized list is provided'):
+        with it('returns the list sorted in ascending order'):
+            xs = [3,1,7,6,5]
             expect(mergesort(xs)).to(equal(sorted(xs)))
     with context('when an unsorted list with 10 elements is provided'):
         with it('returns the sorted version of the list in ascending order'):
