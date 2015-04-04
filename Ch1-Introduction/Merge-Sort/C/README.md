@@ -2,7 +2,7 @@
 `make -f makefile`
 
 # Run Command
-'./mergesort'
+`./mergesort`
 
 # Dependencies
 Besides what is in the Gemfile, after running `bundle install`, also install:
