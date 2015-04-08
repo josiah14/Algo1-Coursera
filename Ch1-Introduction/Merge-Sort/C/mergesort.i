@@ -1,0 +1,4 @@
+%module mergesort
+
+void main();
+
