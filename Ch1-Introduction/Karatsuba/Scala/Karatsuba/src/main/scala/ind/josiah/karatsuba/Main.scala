@@ -12,5 +12,5 @@ object Main {
     }
   }
 
-  private[this] def parseInt(num: String): Try[BigInt] = Try(BigInt.apply(num))
+  private[this] def parseInt(num: String): Try[(BigInt, String)] = Try((BigInt.apply(num), num))
 }
