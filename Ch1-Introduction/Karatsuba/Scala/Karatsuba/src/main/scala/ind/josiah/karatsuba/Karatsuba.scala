@@ -25,7 +25,7 @@ object Karatsuba {
     z2 * BigInt(10).pow(2 * m) + (z1 - z2 - z0) * BigInt(10).pow(m) + z0
   }
 
-  private[this] def numDigits(num: BigInt): Int = Stream.from(0).dropWhile(i => num / BigInt(10).pow(i) > 0).head
+  private[this] def numDigits(num: BigInt): Int = Stream.from(0).dropWhile(i => num.abs / BigInt(10).pow(i) > 0).head
 
   private[this] def split(i: Int, num: BigInt): (BigInt, BigInt) = num /% BigInt(10).pow(i)
 }
