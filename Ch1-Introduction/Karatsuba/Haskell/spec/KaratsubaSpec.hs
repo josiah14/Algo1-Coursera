@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -F -pgmF hspec-discover #-}
+
 module KaratsubaSpec where
 
 import Test.Hspec

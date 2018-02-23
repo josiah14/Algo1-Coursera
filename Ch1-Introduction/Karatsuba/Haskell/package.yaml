@@ -1,0 +1,24 @@
+name: karatsuba
+version: 0.0.1
+License: MIT
+copyright: (c) 2018 Josiah Berkebile
+author: Josiah Berkebile
+maintainer: Josiah Berkebile
+
+ghc-options: -Wall
+
+dependencies:
+  - base == 4.10.1.0
+
+library:
+  source-dirs: ./
+
+tests:
+  spec:
+    source-dirs: 
+      - spec
+      - ./
+    main: KaratsubaSpec.hs
+    dependencies:
+      - hspec == 2.*
+      - QuickCheck == 2.10.1
